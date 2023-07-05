@@ -27,7 +27,7 @@ let envelopes = [
   }
 ]
 
-app.get('/', (req, res) => {
+app.all('/', (req, res) => {
   res.send('Hello World!')
 })
 
