@@ -72,3 +72,37 @@ app.put("/envelopes/:id", (req, res) => {
     res.status(200).send("Envelope updated");
   }
 });
+
+app.delete("/envelopes/:id", (req, res) => {
+  const id = req.params.id;
+  const envelope = envelopes.find((envelope) => envelope.id === Number(id));
+  if (!envelope) {
+    return res.status(404).send("Envelope not found");
+  } else {
+    envelopes = envelopes.filter((e) => e.id !== Number(id));
+    res.status(200).send("Envelope deleted");
+  }
+});
+
+app.get("/envelopes/transfer/:from/:to", (req, res) => {
+  const from = req.params.from;
+  const to = req.params.to;
+  const amount = req.body.amount;
+  const fromEnvelope = envelopes.find((envelope) => envelope.id === Number(from));
+  const toEnvelope = envelopes.find((envelope) => envelope.id === Number(to));
+  if (!fromEnvelope || !toEnvelope) {
+    return res.status(404).send("Envelope not found");
+  } else {
+    if (fromEnvelope.budget < amount) {
+      return res.status(400).send("Insufficient funds");
+    } else {
+      envelopes = envelopes.map((e) =>
+        e.id === Number(from) ? { ...e, budget: e.budget - amount } : e
+      );
+      envelopes = envelopes.map((e) =>
+        e.id === Number(to) ? { ...e, budget: e.budget + amount } : e
+      );
+      res.status(200).send("Transfer successful");
+    }
+  }
+});
